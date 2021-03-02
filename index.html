@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Roboto+Slab:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <h1>СДЕЛАЙТЕ ЗАКАЗ НАПРЯМУЮ ИЗ РЕСТОРАНА</h1>
+    <div class="container">
+        <div class="interface">
+            <menu>
+                <li data-cat="pizza">Блины</li>
+                <li data-cat="shaurma">Шаурма</li>
+                <li data-cat="sandwiches">Сендвичи</li>
+                <li data-cat="burgers">Бургеры</li>
+                <li data-cat="chicken">Курица & Картофель</li>
+                <li data-cat="salads">Тортилья & Салаты</li>
+                <li data-cat="drinks">Напитки & Десерты</li>
+            </menu>
+            <div class="cart">
+                <div class="cart_header">
+                    <img src="/i/shopping-basket.svg" alt="cart">
+                    <h3>Корзина</h3>
+                </div>
+                <div class="cart_order">
+                    <div class="cart_order_table">
+                        <div class="cart_order_table_product">
+                            <p>Название</p>
+                            <p>Количество</p>
+                        </div>
+                    </div>
+                    <p>Итого: <span>0</span> руб.</p>
+                    <button class="btn inactive_btn">ОФОРМИТЬ ЗАКАЗ</button>
+                </div>
+            </div>
+        </div>
+        <div id="product-list"></div>
+    </div>
+
+    <div class="popup_bg">
+        <div class="popup">
+            <div class="popup_header">
+                <button class="close_popup">&times;</button>
+                <h2></h2>
+            </div>
+            <div class="popup_content">
+                <div class="popup_nav">
+                    <ul class="popup_nav_points">
+                        <li name="sizes">Размер</li>
+                        <li name="breads"> Хлеб</li>
+                        <li name="vegetables">Овощи</li>
+                        <li name="sauces">Соусы</li>
+                        <li name="fillings">Начинка</li>
+                        <li name="finish">Готово!</li>
+                    </ul>
+                    <div class="popup_nav_btns">
+                        <button class="btn">НАЗАД</button>
+                        <button class="btn">ВПЕРЕД</button>
+                    </div>
+                </div>
+                <div class="popup_choose"></div>
+            </div>
+            <div class="popup_footer">
+                <h3>Итого: <span class="popup_price">110</span> руб.</h4>
+            </div>
+        </div>
+    </div>
+
+    <template id="templ_prod_card">
+        <div class="product_card">
+            <img src="/i/markets/south_fried_chicken.png" alt="south" class="market-logo">
+            <img src="/i/shaurma/burrito.jpg" alt="bur" class="product-pic">
+            <div class="product_card_description">
+                <h4></h4>
+                <p></p>
+                <h5 class="product_card_price">Цена: <span></span> руб.</h5>            
+                <div class="product_card_count">
+                    <h6>КОЛИЧЕСТВО</h6>
+                    <button class="product_card_count_min">-</button>
+                    <input type="text" value="1" placeholder="0" min="0">
+                    <button class="product_card_count_add">+</button>
+                </div>  
+            </div>
+            <button class="btn product_card_btn">В КОРЗИНУ</button> 
+        </div>
+    </template>
+
+    <template id="templ_popup_card">
+        <div class="popup_card">
+            <img src="" alt="pop_img" class="product-pic">
+            <h3></h3>
+            <p>Цена: <span></span> руб.</p>
+        </div>
+    </template>
+    
+    <script src="/js/popup.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/card.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
+
