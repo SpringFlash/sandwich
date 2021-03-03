@@ -250,6 +250,7 @@ class Popup {
         const toCart_btn = document.createElement('button');
         toCart_btn.addEventListener('click', () => {
             this.toCart(this.price, this.components);
+            footer.parentElement.removeChild(footer);
             this.hide();
         });
         toCart_btn.classList.add('btn');
