@@ -3,63 +3,112 @@ class Cart {
 
     constructor(sel) {
         this.root = sel;
+        this.createOrder();
     }
 
     getElement() {
         return document.querySelector(this.root);
     }
 
-    add(name, count, price, components={}) {     
-        for (const el of this.elements) {
-            console.log(el.name == name)
-            console.log(el.price/el.count == price)
-            console.log(JSON.stringify(el.components) === JSON.stringify(components))
-            if (el.name == name && el.price/el.count == price && JSON.stringify(el.components) === JSON.stringify(components)) {
-                el.price = el.price / el.count;
-                el.count = Number(el.count) + Number(count);
-                el.price = el.price * el.count;
-                console.log(el.id)
-                document.getElementById(el.id).children[1].innerHTML = el.count;
-
-                this.updatePrice();
-                return;
-            }  
+    remove(id) {
+        for (let el of this.elements) {
+            if (el.id == id) {
+                if (confirm(`Вы точно хотите удалить "${el.name}"?`)) {
+                    this.elements.splice(this.elements.indexOf(el), 1);
+                    const chl = document.getElementById(id);
+                    chl.parentElement.removeChild(chl);
+                } else return false
+            }
         }
-        
-        this.elements.push({
-            'name': name,
-            'count': count,
-            'price': price * count,
-            'components': components
-        });
 
-        const order = this.getElement().querySelector('.cart_order_table');
-        const clone = order.querySelector('.cart_order_table_product').cloneNode(true);
-        clone.children[0].innerText = name;
-        clone.children[1].innerText = count;
-
-        clone.id = (this.elements[this.elements.length-1].id = 'cart-product-' + order.children.length);
+        if (this.elements.length == 0) {
+            this.toggleBuy('off');
+        }
 
         this.updatePrice();
+        return true;
+    }
 
-        const btn = this.getElement().querySelector('button');
-        if (btn.classList.contains('inactive_btn')) {
-            btn.classList.remove('inactive_btn');
-            
-            btn.addEventListener('click', () => {
+    inCart(id) {
+        for (let prod of this.elements) {
+            if (prod.id == id) {
+                alert('Этот продукт уже в корзине!')
+                return true;
+            } 
+        }
+    }
+
+    makeId(id_par, components) {
+        let id = 'cp-' + id_par;
+        for (let k in components) {
+            id += '-' + components[k];
+        }
+        return id;
+    }
+
+    add(product, components) {     
+        let id = this.makeId(product.id, components)
+        if (this.inCart(id)) return;
+
+        this.elements.push({
+            'name': product.name,
+            'price': product.price,
+            'count': product.counter,
+            'id': id
+        });
+
+        product.counter.on('ChangeValue', (val) => {
+            if (val == 0) {
+                if (!this.remove(id)) product.counter.addCount();
+            }
+            this.updatePrice();
+        });
+        this.renderElement(product.name, product.counter, id);
+        this.updatePrice();
+        
+        this.toggleBuy('on');
+    }
+
+    toggleBuy(mode) {
+        const btn = this.getElement().querySelector('.btn');
+        if (mode == 'on') btn.classList.remove('inactive_btn');
+        else if (mode == 'off') btn.classList.add('inactive_btn');
+    }
+
+    createOrder() { 
+        const btn = this.getElement().querySelector('.btn');   
+        btn.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('inactive_btn')) {
                 let result = 'Ваш заказ: \n';
-                for (const el of this.elements) result += `► ${el.name} x${el.count} шт. - ${el.price} руб.\n`
+                for (const el of this.elements) result += `► ${el.name} x${el.count.value} шт. - ${el.price * el.count.value} руб.\n`
                 result += `------------------------\nИтого: ${this.summ} руб.`
                 alert(result)
-            });
-        }
-        order.append(clone);
+            }
+        });
+    }
+
+    renderElement(name, counter, id) {
+        const order = this.getElement().querySelector('.cart_order_table');
+
+        const d = document.createElement('div');
+        d.classList.add('cart_order_table_product');
+
+        const p_name = document.createElement('p');
+        p_name.innerText = name;
+        
+        const count = counter.render(id);
+        d.append(p_name, count)
+        
+        p_name.addEventListener('click', () => this.remove(id));
+        d.id = id;
+
+        order.append(d);
     }
 
     updatePrice() {
         this.summ = 0;
         for (const el of this.elements) {
-            this.summ += el.price;
+            this.summ += el.price * el.count.value;
         }
 
         this.getElement().querySelector('p span').innerText = this.summ;
