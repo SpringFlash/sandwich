@@ -1516,5 +1516,69 @@
       "name": "Донер Кебаб",
       "image": "/i/markets/doner.png"
     }
+  },
+  "categories": {
+    "pizza": {
+      "name": "Блины",
+      "description": ""
+    },
+    "shaurma": {
+      "name": "Шаурма",
+      "description": ""
+    },
+    "sandwiches": {
+      "name": "Сендвичи",
+      "description": "Вкусные сендвичи"
+    },
+    "burgers": {
+      "name": "Бургеры",
+      "description": ""
+    },
+    "chicken": {
+      "name": "Курица & Картофель",
+      "description": ""
+    },
+    "salads": {
+      "name": "Тортилья & Салаты",
+      "description": ""
+    },
+    "drinks": {
+      "name": "Напитки & Десерты",
+      "description": ""
+    }
+  },
+  "settings": {
+    "size": {
+      "name": "Размер",
+      "object": "sizes",
+      "title": "Выберите размер сендвича"
+    },
+    "bread": {
+      "name": "Хлеб",
+      "object": "breads",
+      "title": "Хлеб для сендвича на выбор"
+    },
+    "vegetable": {
+      "name": "Овощи",
+      "object": "vegetables",
+      "title": "Дополнительные овощи бесплатно",
+      "multiple": true
+    },
+    "sauce": {
+      "name": "Соус",
+      "object": "sauces",
+      "title": "Выберите 3 бесплатных соуса по вкусу",
+      "multiple": true
+    },
+    "filling": {
+      "name": "Начинка",
+      "object": "fillings",
+      "title": "Добавьте начинку по вкусу",
+      "multiple": true
+    },
+    "finish": {
+      "name": "Готово!",
+      "title": "Проверьте и добавьте в корзину"
+    }
   }
 }

@@ -12,15 +12,8 @@
     <h1>СДЕЛАЙТЕ ЗАКАЗ НАПРЯМУЮ ИЗ РЕСТОРАНА</h1>
     <div class="container">
         <div class="interface">
-            <menu>
-                <li data-cat="pizza">Блины</li>
-                <li data-cat="shaurma">Шаурма</li>
-                <li data-cat="sandwiches">Сендвичи</li>
-                <li data-cat="burgers">Бургеры</li>
-                <li data-cat="chicken">Курица & Картофель</li>
-                <li data-cat="salads">Тортилья & Салаты</li>
-                <li data-cat="drinks">Напитки & Десерты</li>
-            </menu>
+            <div class="menu"></div>
+            <!-- место для Menu() -->
             <div class="cart">
                 <div class="cart_header">
                     <img src="/i/shopping-basket.svg" alt="cart">
@@ -50,12 +43,7 @@
             <div class="popup_content">
                 <div class="popup_nav">
                     <ul class="popup_nav_points">
-                        <li name="sizes">Размер</li>
-                        <li name="breads"> Хлеб</li>
-                        <li name="vegetables">Овощи</li>
-                        <li name="sauces">Соусы</li>
-                        <li name="fillings">Начинка</li>
-                        <li name="finish">Готово!</li>
+                        <!-- Место для пунктов поп-апа -->
                     </ul>
                     <div class="popup_nav_btns">
                         <button class="btn">НАЗАД</button>
@@ -78,12 +66,8 @@
                 <h4></h4>
                 <p></p>
                 <h5 class="product_card_price">Цена: <span></span> руб.</h5>            
-                <div class="product_card_count">
-                    <h6>КОЛИЧЕСТВО</h6>
-                    <button class="product_card_count_min">-</button>
-                    <input type="text" value="1" placeholder="0" min="0">
-                    <button class="product_card_count_add">+</button>
-                </div>  
+                <h6>КОЛИЧЕСТВО</h6>
+                <!-- место для Counter.render() -->
             </div>
             <button class="btn product_card_btn">В КОРЗИНУ</button> 
         </div>
@@ -96,7 +80,11 @@
             <p>Цена: <span></span> руб.</p>
         </div>
     </template>
-    
+
+
+    <script src="/js/count.js"></script>
+    <script src="/js/menu-item.js"></script>
+    <script src="/js/menu.js"></script>
     <script src="/js/popup.js"></script>
     <script src="/js/cart.js"></script>
     <script src="/js/card.js"></script>
