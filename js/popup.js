@@ -242,12 +242,11 @@ class Popup {
     }
 
     show() {
-        const popEl = document.querySelector('.popup_bg');
-        popEl.style.visibility = 'visible';
+        document.querySelector('.popup_bg').style.visibility = 'visible';
     }
 
     hide() {
-        const popEl = document.querySelector('.popup_bg');
-        popEl.style.visibility = 'hidden';
+        document.querySelector('.popup_bg').style.visibility = 'hidden';
+        document.querySelector('.popup_nav_points').innerHTML = '';
     }
 }
