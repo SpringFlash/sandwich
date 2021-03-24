@@ -4,7 +4,8 @@ class ProductCard {
     constructor(product, market, numb) {
         this.product = product;
         
-        let {name, image, description, price, type, category} = product;
+        let {name, image, description, price, type, category, components} = product;
+        
         this.name = name;
         this.image = image;
         this.market = market;
@@ -12,6 +13,7 @@ class ProductCard {
         this.price = price;
         this.type = type;
         this.category = category;
+        this.components = components;
         
         this.id = 'card-' + numb;
     }
