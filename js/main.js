@@ -36,7 +36,8 @@ function start(json) {
 
     this.menu.on('itemChange', function(menuItem) {
         for (prod of products) {
-            if (prod.category == menuItem.id) prod.show('product-list');
+            if (prod.category == menuItem.id) {
+                prod.show('product-list');}
             else prod.hide();
         }
     });

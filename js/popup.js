@@ -1,6 +1,6 @@
 class Popup {
     constructor(product, settings) { 
-
+        console.log(product)
         let {name, image, price = 0, components = {}} = product; 
         this.name = name; 
         this.image = image; 
@@ -21,10 +21,10 @@ class Popup {
             }
         }
 
-        this.toCart = (c) => {
+        this.toCart = () => {
             const prod_copy = Object.assign({}, product);
             prod_copy.name += ' (свой)' 
-            prod_copy.counter = c;
+            console.log(prod_copy)
             settings.toCart(prod_copy, this.components);
         }
 
@@ -215,7 +215,7 @@ class Popup {
         
         const toCart_btn = document.createElement('button');
         toCart_btn.addEventListener('click', () => {
-            this.toCart(count);
+            this.toCart();
             footer.parentElement.removeChild(footer);
             this.hide();
         });

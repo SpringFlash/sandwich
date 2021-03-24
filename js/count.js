@@ -1,6 +1,5 @@
 class Counter {
     
-    renders = [];
     events = {};
     
     constructor(startCount) {
@@ -32,19 +31,15 @@ class Counter {
         }
     }
 
-    getElements() {
-        let result = [];
-        for (let id of this.renders) {
-            const htmEl = document.getElementById(id);
-            if (htmEl) result.push(htmEl.querySelector('input'));
-        }
-        return result
+    getElement() {
+        const htmEl = document.getElementById(this.id).querySelector('input');
+        return htmEl
     }
 
-    ontype(val) {
+    setQty(val, event=true) {
         if (val >= 0) this.value = Number(val);
         else if (val == '') this.value = 0;
-        this.updateCount();
+        this.updateCount(event);
     }
 
     addCount() {
@@ -57,16 +52,18 @@ class Counter {
         this.updateCount();
     }
 
-    updateCount() {
-        for (let el of this.getElements()) el.value = this.value;
-        try {
-            this.onchangevalue(this.value);
-        } catch {}
+    updateCount(event=true) {
+        this.getElement().value = this.value;
+        if (event) {
+            try {
+                this.onchangevalue(this.value);
+            } catch {}
+        }
     }
 
     render(id_par) {
-        let id = id_par + '-counter';
-        this.renders.push(id);
+        this.id = id_par + '-counter';
+        
         
         const min = document.createElement('button');
         min.innerHTML = '-'
@@ -76,16 +73,17 @@ class Counter {
         inp.type = 'text';
         inp.value = this.value;
         inp.placeholder = '0';
-        inp.addEventListener('input', (e) => this.ontype(e.target.value));
+        inp.addEventListener('input', (e) => this.setQty(e.target.value));
         
         const add = document.createElement('button');
         add.innerHTML = '+';
         add.addEventListener('click', () => this.addCount());
-
+        
         const div = document.createElement('div');
         div.classList.add('product_card_count');
         div.append(min, inp, add);
-        div.id = id;
+        div.id = this.id;
+
         return div;
     }
 }

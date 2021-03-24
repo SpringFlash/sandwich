@@ -1,9 +1,10 @@
 class Cart {
-    elements = [];
+    elements = {};
     events = {};
 
     constructor(sel) {
         this.root = sel;
+        this.btnOrder = this.getElement().querySelector('.btn');
         this.createOrder();
     }
 
@@ -37,17 +38,15 @@ class Cart {
     }
 
     remove(id) {
-        for (let el of this.elements) {
-            if (el.id == id) {
-                if (confirm(`Вы точно хотите удалить "${el.name}"?`)) {
-                    this.elements.splice(this.elements.indexOf(el), 1);
-                    const chl = document.getElementById(id);
-                    chl.parentElement.removeChild(chl);
-                } else return false
-            }
+        if (this.elements[id]) {
+            if (confirm(`Вы точно хотите удалить "${this.elements[id].name}"?`)) {
+                delete this.elements[id];
+                const chl = document.getElementById(id);
+                chl.parentElement.removeChild(chl);
+            } else return false
         }
 
-        if (this.elements.length == 0) {
+        if (Object.keys(this.elements).length == 0) {
             this.toggleBuy('off');
         }
 
@@ -56,12 +55,10 @@ class Cart {
     }
 
     inCart(id) {
-        for (let prod of this.elements) {
-            if (prod.id == id) {
-                alert('Этот продукт уже в корзине!')
-                return true;
-            } 
-        }
+        if (this.elements[id]) {
+            alert('Этот продукт уже в корзине!')
+            return true;
+        } 
     }
 
     makeId(id_par, components) {
@@ -76,40 +73,49 @@ class Cart {
         let id = this.makeId(product.id, components)
         if (this.inCart(id)) return;
 
-        this.elements.push({
-            'name': product.name,
-            'price': product.price,
-            'count': product.counter,
-            'id': id
-        });
+        let ctr = new Counter(product.counter.value);
 
-        product.counter.on('ChangeValue', (val) => {
+        ctr.on('changeValue', (val) => {
+            try {product.changeQty(val)} catch{};
             if (val == 0) {
                 if (!this.remove(id)) product.counter.addCount();
             }
             this.updatePrice();
         });
-        this.renderElement(product.name, product.counter, id);
+
+        this.elements[id] = {
+            'name': product.name,
+            'price': product.price,
+            'counter': ctr
+        };
+
+        try {
+            product.on('changeQty', (val) => {  
+                ctr.setQty(val);
+            });
+        } catch {}
+
+        this.renderElement(product.name, ctr, id);
         this.updatePrice();
         
         this.toggleBuy('on');
     }
 
     toggleBuy(mode) {
-        const btn = this.getElement().querySelector('.btn');
-        if (mode == 'on') btn.classList.remove('inactive_btn');
-        else if (mode == 'off') btn.classList.add('inactive_btn');
+        if (mode == 'on') this.btnOrder.classList.remove('inactive_btn');
+        else if (mode == 'off') this.btnOrder.classList.add('inactive_btn');
     }
 
-    createOrder() { 
-        const btn = this.getElement().querySelector('.btn');   
-        btn.addEventListener('click', (e) => {
+    createOrder() {
+        this.btnOrder.addEventListener('click', (e) => {
             try {
                 this.onorder();
             } catch {};
             if (!e.target.classList.contains('inactive_btn')) {
                 let result = 'Ваш заказ: \n';
-                for (const el of this.elements) result += `► ${el.name} x${el.count.value} шт. - ${el.price * el.count.value} руб.\n`
+                for (const key in this.elements) 
+                    result += `► ${this.elements[key].name} x${this.elements[key].counter.value} шт. 
+                    - ${this.elements[key].price * this.elements[key].counter.value} руб.\n`;
                 result += `------------------------\nИтого: ${this.summ} руб.`
                 alert(result)
             }
@@ -136,8 +142,8 @@ class Cart {
 
     updatePrice() {
         this.summ = 0;
-        for (const el of this.elements) {
-            this.summ += el.price * el.count.value;
+        for (const key in this.elements) {
+            this.summ += this.elements[key].price * this.elements[key].counter.value;
         }
 
         this.getElement().querySelector('p span').innerText = this.summ;

@@ -14,6 +14,9 @@ class ProductCard {
         this.type = type;
         this.category = category;
         this.components = components;
+
+        this.counter = new Counter(1);
+        this.counter.on('changeValue', (c) => {try {this.onchangeqty(c)} catch{}});
         
         this.id = 'card-' + numb;
     }
@@ -56,10 +59,12 @@ class ProductCard {
         if (this.rendered) this.getElement().style.display = 'none';
     }
 
+    changeQty(numb) {
+        this.counter.setQty(numb, false);
+    }
+
     render() {
         const clone = document.getElementById('templ_prod_card').content.cloneNode(true);
-        
-        this.counter = new Counter(1);
 
         const card = clone.querySelector('.product_card')
         const card_name = clone.querySelector('h4');
@@ -73,6 +78,7 @@ class ProductCard {
         
         const card_price = clone.querySelector('.product_card_price span')
 
+        
         clone.querySelector('.product_card_description').append(this.counter.render(this.id));
         clone.querySelector('.product_card_btn').addEventListener('click', () => {try {this.onbuy(this)} catch{}});
 
