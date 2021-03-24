@@ -4,12 +4,12 @@ function start(json) {
     let products = [];
     
     for (let prod of json.menu) { 
-        let mrk_src;
-        for (let mrkt in json.markets) if (mrkt == prod.market) mrk_src = json.markets[mrkt].image;
-        
+        let mrk;
+        if (prod.market) mrk = json.markets[prod.market].image;
+
         let product = new ProductCard(
             prod,
-            mrk_src, 
+            mrk, 
             products.length
         );
       

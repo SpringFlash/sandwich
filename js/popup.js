@@ -1,13 +1,7 @@
 class Popup {
     constructor(product, settings) { 
-        // инициализация данных товара для поп-апа
-        let {name, image, price = 0, components = {
-            "size": "1x",
-            "bread": "white-italian",
-            "vegetable": [],
-            "sauce": [],
-            "filling": []
-        }} = product; 
+
+        let {name, image, price = 0, components = {}} = product; 
         this.name = name; 
         this.image = image; 
         this.cost = price;
@@ -38,12 +32,10 @@ class Popup {
     }
 
     init(json) {
-        this.sizes = json.sizes;
-        this.breads = json.breads;
-        this.vegetables = json.vegetables;
-        this.sauces = json.sauces;
-        this.fillings = json.fillings;
         this.settings = json.settings;
+        for (let key in this.settings) {
+            this[this.settings[key].object] = json[this.settings[key].object]
+        }
         
         this.show();
         this.createProgressBar(this.settings);
