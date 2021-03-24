@@ -1,5 +1,6 @@
 class Cart {
     elements = [];
+    events = {};
 
     constructor(sel) {
         this.root = sel;
@@ -8,6 +9,31 @@ class Cart {
 
     getElement() {
         return document.querySelector(this.root);
+    }
+
+    on(name, func) {
+        if (!this.events[name.toLowerCase()]) {
+            this.events[name.toLowerCase()] = [];
+            this['on' + name.toLowerCase()] = (...args) => {
+                for (let f of this.events[name.toLowerCase()]) {
+                    f(...args);
+                }
+            }
+        }
+        this.events[name.toLowerCase()].push(func);
+    }
+
+    off(name, func) {
+        if (this.events[name.toLowerCase()]) {
+            this.events[name.toLowerCase()].forEach((el, ind) => {
+                if (String(el) == String(func)) this.events[name.toLowerCase()].splice(ind, 1);
+            });
+
+            if (this.events[name.toLowerCase()] == []) {
+                delete this.events[name.toLowerCase()];
+                this['on' + name.toLowerCase()] = function(){};
+            }
+        }
     }
 
     remove(id) {
@@ -78,6 +104,9 @@ class Cart {
     createOrder() { 
         const btn = this.getElement().querySelector('.btn');   
         btn.addEventListener('click', (e) => {
+            try {
+                this.onorder();
+            } catch {};
             if (!e.target.classList.contains('inactive_btn')) {
                 let result = 'Ваш заказ: \n';
                 for (const el of this.elements) result += `► ${el.name} x${el.count.value} шт. - ${el.price * el.count.value} руб.\n`

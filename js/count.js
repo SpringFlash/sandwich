@@ -1,14 +1,35 @@
 class Counter {
     
     renders = [];
-    onchangevalue(){}
+    events = {};
     
     constructor(startCount) {
         this.value = startCount;
     }
 
     on(name, func) {
-        this['on'+name.toLowerCase()] = func;
+        if (!this.events[name.toLowerCase()]) {
+            this.events[name.toLowerCase()] = [];
+            this['on' + name.toLowerCase()] = (...args) => {
+                for (let f of this.events[name.toLowerCase()]) {
+                    f(...args);
+                }
+            }
+        }
+        this.events[name.toLowerCase()].push(func);
+    }
+
+    off(name, func) {
+        if (this.events[name.toLowerCase()]) {
+            this.events[name.toLowerCase()].forEach((el, ind) => {
+                if (String(el) == String(func)) this.events[name.toLowerCase()].splice(ind, 1);
+            });
+
+            if (this.events[name.toLowerCase()] == []) {
+                delete this.events[name.toLowerCase()];
+                this['on' + name.toLowerCase()] = function(){};
+            }
+        }
     }
 
     getElements() {
@@ -38,7 +59,9 @@ class Counter {
 
     updateCount() {
         for (let el of this.getElements()) el.value = this.value;
-        this.onchangevalue(this.value);
+        try {
+            this.onchangevalue(this.value);
+        } catch {}
     }
 
     render(id_par) {

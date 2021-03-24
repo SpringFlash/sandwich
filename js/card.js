@@ -1,5 +1,6 @@
 class ProductCard {
-    
+    events = {};
+
     constructor(product, market, numb) {
         this.product = product;
         
@@ -11,9 +12,6 @@ class ProductCard {
         this.price = price;
         this.type = type;
         this.category = category;
-
-        this.onbuy = function(){};
-        this.oncustom = function(){};
         
         this.id = 'card-' + numb;
     }
@@ -23,7 +21,28 @@ class ProductCard {
     }
 
     on(name, func) {
-        this['on'+name.toLowerCase()] = func;
+        if (!this.events[name.toLowerCase()]) {
+            this.events[name.toLowerCase()] = [];
+            this['on' + name.toLowerCase()] = (...args) => {
+                for (let f of this.events[name.toLowerCase()]) {
+                    f(...args);
+                }
+            }
+        }
+        this.events[name.toLowerCase()].push(func);
+    }
+
+    off(name, func) {
+        if (this.events[name.toLowerCase()]) {
+            this.events[name.toLowerCase()].forEach((el, ind) => {
+                if (String(el) == String(func)) this.events[name.toLowerCase()].splice(ind, 1);
+            });
+
+            if (this.events[name.toLowerCase()] == []) {
+                delete this.events[name.toLowerCase()];
+                this['on' + name.toLowerCase()] = function(){};
+            }
+        }
     }
 
     show(root) {
@@ -47,15 +66,13 @@ class ProductCard {
         const card_description = clone.querySelector('.product_card_description p');
         if (this.type == "multiple") {
             card_description.classList.add('popupable');
-            card_description.addEventListener('click', () => {
-                this.oncustom(this);
-            });
+            card_description.addEventListener('click', () => {try {this.oncustom(this)} catch {}});
         }
         
         const card_price = clone.querySelector('.product_card_price span')
 
         clone.querySelector('.product_card_description').append(this.counter.render(this.id));
-        clone.querySelector('.product_card_btn').addEventListener('click', () => this.onbuy(this));
+        clone.querySelector('.product_card_btn').addEventListener('click', () => {try {this.onbuy(this)} catch{}});
 
         card.id = this.id;
         card_name.innerText = this.name;

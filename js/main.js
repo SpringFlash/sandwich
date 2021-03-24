@@ -13,7 +13,7 @@ function start(json) {
             products.length
         );
       
-        product.on('Buy', (product) => {
+        product.on('buy', (product) => {
             cart.add(product);
         });
 
@@ -22,7 +22,7 @@ function start(json) {
             'json': json
         }
       
-        product.on('Custom', (product) => {
+        product.on('custom', (product) => {
             new Popup(product, settings);
         })
 
@@ -34,7 +34,7 @@ function start(json) {
 
     document.querySelector('.menu').append(this.menu.render());
 
-    this.menu.on('ItemChange', function(menuItem) {
+    this.menu.on('itemChange', function(menuItem) {
         for (prod of products) {
             if (prod.category == menuItem.id) prod.show('product-list');
             else prod.hide();
@@ -45,7 +45,7 @@ function start(json) {
     this.active = this.menu.items[0];
 
     for (let it of this.menu.items) {
-        it.on('Click', () => {
+        it.on('click', () => {
             this.active.removeActive();
             this.active = it;
             this.active.setActive();
