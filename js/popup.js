@@ -24,7 +24,6 @@ class Popup {
         this.toCart = () => {
             const prod_copy = Object.assign({}, product);
             prod_copy.name += ' (свой)' 
-            console.log(prod_copy)
             settings.toCart(prod_copy, this.components);
         }
 
@@ -48,8 +47,8 @@ class Popup {
 
         this.updatePrice(this.price);
 
-        const close = document.querySelector('.close_popup');
-        close.addEventListener('click', () => this.hide());
+        this.closeBtn = document.querySelector('.close_popup');
+        this.closeBtn.addEventListener('click', () => this.hide());
         
         const popBtnEl = document.querySelector('.popup_nav_btns');
         popBtnEl.children[0].addEventListener('click', () => this.stages[this.stage-1]());
@@ -219,6 +218,9 @@ class Popup {
             footer.parentElement.removeChild(footer);
             this.hide();
         });
+
+        this.closeBtn.addEventListener('click', () => footer.parentElement.removeChild(footer));
+
         toCart_btn.classList.add('btn');
         toCart_btn.innerText = 'В корзину';
 
