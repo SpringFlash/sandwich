@@ -1,42 +1,30 @@
 class Cart {
+    
     elements = {};
-    events = {};
 
+    /**
+     * Корзина для продуктов.
+     * @param {String} sel CSS селектор элемента корзины.
+     */
     constructor(sel) {
         this.root = sel;
         this.btnOrder = this.getElement().querySelector('.btn');
         this.createOrder();
     }
 
+    /**
+     * Возвращает HTML элемент корзины.
+     * @returns {HTMLDivElement}
+     */
     getElement() {
         return document.querySelector(this.root);
     }
 
-    on(name, func) {
-        if (!this.events[name.toLowerCase()]) {
-            this.events[name.toLowerCase()] = [];
-            this['on' + name.toLowerCase()] = (...args) => {
-                for (let f of this.events[name.toLowerCase()]) {
-                    f(...args);
-                }
-            }
-        }
-        this.events[name.toLowerCase()].push(func);
-    }
-
-    off(name, func) {
-        if (this.events[name.toLowerCase()]) {
-            this.events[name.toLowerCase()].forEach((el, ind) => {
-                if (String(el) == String(func)) this.events[name.toLowerCase()].splice(ind, 1);
-            });
-
-            if (this.events[name.toLowerCase()] == []) {
-                delete this.events[name.toLowerCase()];
-                this['on' + name.toLowerCase()] = function(){};
-            }
-        }
-    }
-
+    /**
+     * Удаляет элемент из корзины, возвращая TRUE или FALSE.
+     * @param {String} id ID элемента в корзине.
+     * @returns {Boolean}
+     */
     remove(id) {
         if (this.elements[id]) {
             if (confirm(`Вы точно хотите удалить "${this.elements[id].name}"?`)) {
@@ -54,13 +42,26 @@ class Cart {
         return true;
     }
 
+    /**
+     * Определяет, находится ли элемент с данным ID в корзине.
+     * @param {*} id ID элемента в корзине.
+     * @returns {Boolean}
+     */
     inCart(id) {
         if (this.elements[id]) {
             alert('Этот продукт уже в корзине!')
             return true;
-        } 
+        } else return false;
     }
 
+    /**
+     * Создает ID для элемента и возвращает его.
+     * @param {*} id_par ID родительского элемента.
+     * @param {*} components Объект компонентов продукта.
+     * @returns {String}
+     * 
+     * @private
+     */
     makeId(id_par, components) {
         let id = 'cp-' + id_par;
         for (let k in components) {
@@ -69,6 +70,12 @@ class Cart {
         return id;
     }
 
+    /**
+     * Добавляет элемент продукта в корзину.
+     * @param {ProductCard} product "Продукт" элемент, который вносится в корзину.
+     * @param {Object} components Объект компонентов продукта. 
+     * @returns {void}
+     */
     add(product, components) {     
         let id = this.makeId(product.id, components)
         if (this.inCart(id)) return;
@@ -76,7 +83,7 @@ class Cart {
         let ctr = new Counter(product.counter.value);
 
         ctr.on('changeValue', (val) => {
-            try {product.changeQty(val)} catch{};
+            if (product.changeQty) product.changeQty(val);
             if (val == 0) {
                 if (!this.remove(id)) product.counter.addCount();
             }
@@ -101,16 +108,22 @@ class Cart {
         this.toggleBuy('on');
     }
 
+    /**
+     * Активирует/деактивирует кнопку оформления заказа.
+     * @param {String} mode Режим включения/выключения - ('on'/'off')
+     * 
+     * @private
+     */
     toggleBuy(mode) {
         if (mode == 'on') this.btnOrder.classList.remove('inactive_btn');
         else if (mode == 'off') this.btnOrder.classList.add('inactive_btn');
     }
 
+    /**
+     * Создает заказ.
+     */
     createOrder() {
         this.btnOrder.addEventListener('click', (e) => {
-            try {
-                this.onorder();
-            } catch {};
             if (!e.target.classList.contains('inactive_btn')) {
                 let result = 'Ваш заказ: \n';
                 for (const key in this.elements) 
@@ -122,6 +135,14 @@ class Cart {
         });
     }
 
+    /**
+     * Рендерит элемент в корзине.
+     * @param {String} name Название продукта.
+     * @param {Counter} counter Счетчик элемента корзины.
+     * @param {String} id ID элемента в корзине.
+     * 
+     * @private
+     */
     renderElement(name, counter, id) {
         const order = this.getElement().querySelector('.cart_order_table');
 
@@ -140,6 +161,10 @@ class Cart {
         order.append(d);
     }
 
+    /**
+     * Обновляет итоговую стоимость корзины.
+     * @private
+     */
     updatePrice() {
         this.summ = 0;
         for (const key in this.elements) {

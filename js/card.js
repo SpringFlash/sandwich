@@ -1,9 +1,15 @@
-class ProductCard {
-    events = {};
+class ProductCard extends Events {
 
+    /**
+     * Карточка продукта.
+     * @param {Object} product Объект с данными о продукте.
+     * @param {String} market Путь к изображению магазина продукта.
+     * @param {Number} numb Номер данной карточки.
+     */
     constructor(product, market, numb) {
-        this.product = product;
+        super(['custom', 'buy', 'changeqty']); // event names
         
+        this.product = product;
         let {name, image, description, price, type, category, components} = product;
         
         this.name = name;
@@ -16,53 +22,47 @@ class ProductCard {
         this.components = components;
 
         this.counter = new Counter(1);
-        this.counter.on('changeValue', (c) => {try {this.onchangeqty(c)} catch{}});
+        this.counter.on('changeValue', (c) => this.emit('changeqty', c));
         
         this.id = 'card-' + numb;
     }
 
+    /**
+     * Возвращает HTML элемент "карточки" продукта.
+     * @returns {HTMLDivElement}
+     */
     getElement() {
         return document.getElementById(this.id);
     }
 
-    on(name, func) {
-        if (!this.events[name.toLowerCase()]) {
-            this.events[name.toLowerCase()] = [];
-            this['on' + name.toLowerCase()] = (...args) => {
-                for (let f of this.events[name.toLowerCase()]) {
-                    f(...args);
-                }
-            }
-        }
-        this.events[name.toLowerCase()].push(func);
-    }
-
-    off(name, func) {
-        if (this.events[name.toLowerCase()]) {
-            this.events[name.toLowerCase()].forEach((el, ind) => {
-                if (String(el) == String(func)) this.events[name.toLowerCase()].splice(ind, 1);
-            });
-
-            if (this.events[name.toLowerCase()] == []) {
-                delete this.events[name.toLowerCase()];
-                this['on' + name.toLowerCase()] = function(){};
-            }
-        }
-    }
-
+    /**
+     * Показывает карточку на странице, при необходимости рендерит ее.
+     * @param {String} root ID элемента, хранящего карточки.
+     */
     show(root) {
         if (!this.rendered) document.getElementById(root).append(this.render());
         else this.getElement().style.display = '';
     }
 
+    /**
+     * Скрывает карточку с картинки.
+     */
     hide() {
         if (this.rendered) this.getElement().style.display = 'none';
     }
 
+    /**
+     * Меняет количество продукта в карточке.
+     * @param {Number} numb Необходимое количество для установки.
+     */
     changeQty(numb) {
         this.counter.setQty(numb, false);
     }
 
+    /**
+     * Рендерит HTML элемент DIV карточки и возвращает его.
+     * @returns {HTMLDivElement}
+     */
     render() {
         const clone = document.getElementById('templ_prod_card').content.cloneNode(true);
 
@@ -73,14 +73,14 @@ class ProductCard {
         const card_description = clone.querySelector('.product_card_description p');
         if (this.type == "multiple") {
             card_description.classList.add('popupable');
-            card_description.addEventListener('click', () => {try {this.oncustom(this)} catch {}});
+            card_description.addEventListener('click', () => this.emit('custom', this));
         }
         
         const card_price = clone.querySelector('.product_card_price span')
 
         
         clone.querySelector('.product_card_description').append(this.counter.render(this.id));
-        clone.querySelector('.product_card_btn').addEventListener('click', () => {try {this.onbuy(this)} catch{}});
+        clone.querySelector('.product_card_btn').addEventListener('click', () => this.emit('buy', this));
 
         card.id = this.id;
         card_name.innerText = this.name;

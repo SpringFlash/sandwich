@@ -1,69 +1,70 @@
-class Counter {
+class Counter extends Events{
     
-    events = {};
-    
+    /**
+     * Счетчик для элементов.
+     * @param {Number} startCount Стартовое значение счетчика.
+     */
     constructor(startCount) {
+        super(['changeValue']);
         this.value = startCount;
     }
 
-    on(name, func) {
-        if (!this.events[name.toLowerCase()]) {
-            this.events[name.toLowerCase()] = [];
-            this['on' + name.toLowerCase()] = (...args) => {
-                for (let f of this.events[name.toLowerCase()]) {
-                    f(...args);
-                }
-            }
-        }
-        this.events[name.toLowerCase()].push(func);
-    }
 
-    off(name, func) {
-        if (this.events[name.toLowerCase()]) {
-            this.events[name.toLowerCase()].forEach((el, ind) => {
-                if (String(el) == String(func)) this.events[name.toLowerCase()].splice(ind, 1);
-            });
-
-            if (this.events[name.toLowerCase()] == []) {
-                delete this.events[name.toLowerCase()];
-                this['on' + name.toLowerCase()] = function(){};
-            }
-        }
-    }
-
+    /**
+     * Возвращает HTML элемент счетчика.
+     * @returns {HTMLInputElement}
+     */
     getElement() {
         const htmEl = document.getElementById(this.id).querySelector('input');
         return htmEl
     }
 
+
+    /**
+     * Устанавливает значение счетчика, указанное в параметрах.
+     * @param {Number} val Новое значение для счетчика.
+     * @param {Boolean} event Нужно ли запускать callback-функции по событию.
+     */
     setQty(val, event=true) {
         if (val >= 0) this.value = Number(val);
         else if (val == '') this.value = 0;
         this.updateCount(event);
     }
 
+    /**
+     * Добавляет 1 к значению счтчика.
+     */
     addCount() {
         this.value += 1;
         this.updateCount();
     }
 
+    /**
+     * Отнимает 1 от значения счетчика.
+     */
     minCount() {
         if (this.value > 0) this.value -= 1;
         this.updateCount();
     }
 
+    /**
+     * Обновляет значение в элементе счетчика.
+     * @param {Boolean} event Нужно ли запускать callback-функции по событию.
+     * 
+     * @private
+     */
     updateCount(event=true) {
         this.getElement().value = this.value;
-        if (event) {
-            try {
-                this.onchangevalue(this.value);
-            } catch {}
-        }
+        if (event) this.emit('changeValue', this.value)
     }
 
+    /**
+     * Рендерит счетчик и возвращяет DIV элемент с ним.
+     * @param {String} id_par ID родительского элемента.
+     * @returns {HTMLDivElement}
+     */
     render(id_par) {
         this.id = id_par + '-counter';
-        
         
         const min = document.createElement('button');
         min.innerHTML = '-'

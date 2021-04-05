@@ -1,58 +1,48 @@
-class MenuItem {
+class MenuItem extends Events {
     
-    events = {};
-    
+    /**
+     * Пункт меню.
+     * @param {String} category Название категории.
+     * @param {String} id ID пункта меню.
+     */
     constructor(category, id) {
+        super(['click', 'active']); // event names
         this.name = category.name;
         this.id = id;
     }
 
-    on(name, func) {
-        if (!this.events[name.toLowerCase()]) {
-            this.events[name.toLowerCase()] = [];
-            this['on' + name.toLowerCase()] = (...args) => {
-                for (let f of this.events[name.toLowerCase()]) {
-                    f(...args);
-                }
-            }
-        }
-        this.events[name.toLowerCase()].push(func);
-    }
-
-    off(name, func) {
-        if (this.events[name.toLowerCase()]) {
-            this.events[name.toLowerCase()].forEach((el, ind) => {
-                if (String(el) == String(func)) this.events[name.toLowerCase()].splice(ind, 1);
-            });
-
-            if (this.events[name.toLowerCase()] == []) {
-                delete this.events[name.toLowerCase()];
-                this['on' + name.toLowerCase()] = function(){};
-            }
-        }
-    }
-
+    /**
+     * Возвращает HTML элемент "пункта меню".
+     * @returns {HTMLLIElement}
+     */
     getElement() {
         return document.getElementById(this.id);
     }
 
+    /**
+     * Делает активным "пункт меню".
+     */
     setActive() {
         this.getElement().classList.add('active');
-        try {
-            this.onactive();
-        } catch {};
-        return 
+        this.emit('active');
     }
 
+    /**
+     * Делает не активным "пункт меню".
+     */
     removeActive() {
         return this.getElement().classList.remove('active');
     }
 
+    /**
+     * Рендерит HTML элемент LI "пункта меню" и возвращает его.
+     * @returns {HTMLLIElement}
+     */
     render() {
         const el = document.createElement('li');
-        el.addEventListener('click', () => {try {this.onclick()} catch{}});
+        el.addEventListener('click', () => this.emit('click'));
         el.innerHTML = this.name;
         el.id = this.id;
-        return el
+        return el;
     }
 }

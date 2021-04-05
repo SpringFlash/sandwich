@@ -1,6 +1,13 @@
-class Popup {
+class Popup extends Events {
+
+    /**
+     * Popup для выбора компонентов к продукту.
+     * @param {Product} product Карточка продукта.
+     * @param {Object} settings Объект с набором настроек для поп-апа.
+     */
     constructor(product, settings) { 
-        console.log(product)
+        super(['close']);
+        
         let {name, image, price = 0, components = {}} = product; 
         this.name = name; 
         this.image = image; 
@@ -21,8 +28,9 @@ class Popup {
             }
         }
 
-        this.toCart = () => {
+        this.toCart = (c) => {
             const prod_copy = Object.assign({}, product);
+            prod_copy.counter = c;
             prod_copy.name += ' (свой)' 
             settings.toCart(prod_copy, this.components);
         }
@@ -30,6 +38,12 @@ class Popup {
         this.init(json);
     }
 
+    /**
+     * Инициализирует поп-ап.
+     * @param {JSON} json Json объект.
+     * 
+     * @private
+     */
     init(json) {
         this.settings = json.settings;
         for (let key in this.settings) {
@@ -51,12 +65,25 @@ class Popup {
         this.closeBtn.addEventListener('click', () => this.hide());
         
         const popBtnEl = document.querySelector('.popup_nav_btns');
-        popBtnEl.children[0].addEventListener('click', () => this.stages[this.stage-1]());
-        popBtnEl.children[1].addEventListener('click', () => {
-            this.stages[this.stage+1]()});
+        const stp = () => this.stages[this.stage-1]()
+        const stm = () => this.stages[this.stage+1]()
+        popBtnEl.children[0].addEventListener('click', stp);
+        popBtnEl.children[1].addEventListener('click', stm);
+        this.on('close', () => {
+            popBtnEl.children[0].removeEventListener('click', stp);
+            popBtnEl.children[1].removeEventListener('click', stm);
+        });
+       
         this.stages[0]();
     }
 
+
+    /**
+     * Создает прогресс-бар в поп-апе.
+     * @param {Object} set Объект содержащий пункты прогресс-бара. 
+     * 
+     * @private
+     */
     createProgressBar(set) {
         const root = document.querySelector('.popup_nav_points')
         for (let key in set) {
@@ -67,6 +94,13 @@ class Popup {
         }
     }
 
+    /**
+     * Меняет заголовок и активный пункт прогресс-бара на указанные.
+     * @param {String} title Заголовок поп-апа. 
+     * @param {*} compName Название пункта прогресс-бара.
+     * 
+     * @private
+     */
     changeHeader(title, compName) {
         document.querySelector('.popup_header h2').innerText = title;
         try {
@@ -77,23 +111,35 @@ class Popup {
         }
     }
 
-    clearStyle(root, popBtnEl) {
-        root.style.justifyContent = '';
-        root.style.flexWrap = '';
-        root.innerText = '';
+    /**
+     * Очищает выставленый програмно стиль кнопок и контейнера, также очищая содержимое контейнера.
+     * @param {HTMLDivElement} popBtnEl DIV элемент, содержащий кнопки переходов в поп-апе.
+     * 
+     * @private
+     */
+    clearStyle(popBtnEl) {
+        this.root.style.justifyContent = '';
+        this.root.style.flexWrap = '';
+        this.root.innerText = '';
         
         popBtnEl.children[0].style.visibility = ''; 
         popBtnEl.children[1].style.visibility = '';
     }
 
+    /**
+     * Меняет этап поп-апа, на указанный.
+     * @param {Number} stage Номер этапа поп-апа
+     * @param {String} compName Название этапа.
+     * @param {*} param2 Объект настроек для этапа.
+     */
     changeStage(stage, compName, {object, title, multiple=false}) {
         this.stage = stage;
 
-        const root = document.querySelector('.popup_choose');
+        this.root = document.querySelector('.popup_choose');
         const popBtnEl = document.querySelector('.popup_nav_btns');
 
         this.changeHeader(title, compName);
-        this.clearStyle(root, popBtnEl);
+        this.clearStyle(popBtnEl);
         
         if (stage == 0) {
             popBtnEl.children[0].style.visibility = 'hidden';
@@ -103,11 +149,11 @@ class Popup {
             popBtnEl.children[0].style.visibility = 'hidden';
             popBtnEl.children[1].style.visibility = 'hidden';
             
-            root.style.justifyContent = 'flex-start';
-            root.style.flexWrap = 'nowrap';
+            this.root.style.justifyContent = 'flex-start';
+            this.root.style.flexWrap = 'nowrap';
 
             const [img, div, to_cart] = this.done();
-            root.append(img, div);
+            this.root.append(img, div);
             document.querySelector('.popup_footer').append(to_cart);
             return
         }
@@ -119,12 +165,12 @@ class Popup {
                 card = this.createCard(this[object][key].image, this[object][key].name, this[object][key].price+this.cost);
             else card = this.createCard(this[object][key].image, this[object][key].name, this[object][key].price);
             
-            this.addCardListener(card, key, multiple, object, compName, root);
+            this.addCardListener(card, key, multiple, object, compName);
             card.id = key;
-            root.append(card);
+            this.root.append(card);
 
             if (this.components[compName] == key) {
-                for (const el of root.children) {
+                for (const el of this.root.children) {
                     el.classList.toggle('active', el === card)
                 };
             } else if (this.components[compName] instanceof Array && this.components[compName].indexOf(key) != -1) {
@@ -134,6 +180,15 @@ class Popup {
         
     }
 
+    /**
+     * Создает карточку продукта для поп-апа и возвращает ее.
+     * @param {String} image Путь к изображению карточки.
+     * @param {String} name Название продукта карточки.
+     * @param {(Number|String)} price Стоимость продукта карточки.
+     * @returns {HTMLDivElement}
+     * 
+     * @private
+     */
     createCard(image, name, price) {
         const clone = document.getElementById('templ_popup_card').content.cloneNode(true);
         const imageEl = clone.querySelector('img');
@@ -147,7 +202,17 @@ class Popup {
         return clone.children[0];
     }
 
-    addCardListener(card, key, multiple, object, compName, root) {
+    /**
+     * Добавляет необходимые слушатели событий на карточку.
+     * @param {HTMLDivElement} card Карточка поп-ап продукта.
+     * @param {String} key Програмный ключ (имя) продукта.
+     * @param {Boolean} multiple Является ли данный этап поп-апа мультивыборным.
+     * @param {String} object Название объекта, хранящего данные об этих продуктах.
+     * @param {String} compName Програмное название стадии поп-апа. 
+     * 
+     * @private
+     */
+    addCardListener(card, key, multiple, object, compName) {
         card.querySelector('img').addEventListener('click', (event) => {
             if (multiple) {
                 if (!event.target.parentElement.classList.contains('active')) {
@@ -164,7 +229,7 @@ class Popup {
                 }
 
             } else {
-                for (const el of root.children) el.classList.toggle('active', el === event.target.parentElement);
+                for (const el of this.root.children) el.classList.toggle('active', el === event.target.parentElement);
                 if (this.components[compName]) {
                     this.updatePrice(this.price-this[object][this.components[compName]].price);
                 }
@@ -174,6 +239,12 @@ class Popup {
         });
     }
 
+    /**
+     * Рендерит финальную стадию поп-апа и возвращает ее.
+     * @returns {[HTMLImageElement, HTMLDivElement, HTMLDivElement]} Изображение продукта, описание продукта, футер поп-апа.
+     * 
+     * @private
+     */
     done() {
         const img = document.createElement('img');
         img.src = this.image;
@@ -214,12 +285,13 @@ class Popup {
         
         const toCart_btn = document.createElement('button');
         toCart_btn.addEventListener('click', () => {
-            this.toCart();
-            footer.parentElement.removeChild(footer);
+            this.toCart(count);
             this.hide();
         });
 
-        this.closeBtn.addEventListener('click', () => footer.parentElement.removeChild(footer));
+        const footer_del = () => footer.parentElement.removeChild(footer);
+        this.on('close', footer_del);
+        this.on('close', () => this.off('close', footer_del))
 
         toCart_btn.classList.add('btn');
         toCart_btn.innerText = 'В корзину';
@@ -230,17 +302,30 @@ class Popup {
         return [img, desc, footer];
     }
 
+    /**
+     * Обноваляет итоговую стоимость в поп-апе на уазанную.
+     * @param {Number} pr Финальная стоимость. 
+     * 
+     * @private
+     */
     updatePrice(pr) {
         this.price = pr;
         document.querySelector('.popup_price').innerText = this.price;
     }
 
+    /**
+     * Показывает поп-ап на странице.
+     */
     show() {
         document.querySelector('.popup_bg').style.visibility = 'visible';
     }
 
+    /**
+     * Скрывает поп-ап.
+     */
     hide() {
         document.querySelector('.popup_bg').style.visibility = 'hidden';
         document.querySelector('.popup_nav_points').innerHTML = '';
+        this.emit('close');
     }
 }
