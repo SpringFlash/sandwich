@@ -1,12 +1,16 @@
 class Popup extends Events {
 
+    static events = {
+        'close': Symbol('close')
+    }
+
     /**
      * Popup для выбора компонентов к продукту.
      * @param {Product} product Карточка продукта.
      * @param {Object} settings Объект с набором настроек для поп-апа.
      */
     constructor(product, settings) { 
-        super(['close']);
+        super(Popup.events);
         
         let {name, image, price = 0, components = {}} = product; 
         this.name = name; 
